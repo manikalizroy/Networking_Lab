@@ -1,43 +1,42 @@
-#include<stdio.h>
-#include<stdlib.h>
-
+#include <stdio.h>
+#include <stdlib.h>
+#define INF 999
 int main()
 {
-   int n,i,j,k,v,adj[10][10],dist[10],last[10],flag[10],src,min;
-   printf("Enter the number of nodes:");
+   int n,i,j,v,src,min,flag[10];
+   int cost[10][10],dist[10],last[10];
+
+   printf("enter no. of nodes: ");
    scanf("%d",&n);
-   printf("Enter distance matrix\n");
+   printf("enter the the distance matrix:");
    for(i=0;i<n;i++)
    {
       for(j=0;j<n;j++)
       {
-         scanf("%d",&adj[i][j]);
-         if(adj[i][j] == 0 && i!=j)
-         {
-            adj[i][j]=1000;
-         }
+         scanf("%d",&cost[i][j]);
+         if(cost[i][j] == 0 && i!=j)
+            cost[i][j] = INF;
       }
    }
 
-   printf("Enter the source vertex:");
+   printf("enter the source vertex: ");
    scanf("%d",&src);
 
    for(i=0;i<n;i++)
    {
       flag[i]=0;
-      dist[i]=adj[src][i];
-      last[i]=0;
+      dist[i] = cost[src][i];
+      last[i]=src;
    }
-
+   last[src] = src;
    flag[src] = 1;
    dist[src] = 0;
-   last[src] = src;  // source points to itself
 
-   for(i = 0; i < n; i++)
+   for(i=0;i<n;i++)
    {
-      min = 1000;
-      v = -1;  // initialize v to detect disconnected graph
-      for(j = 0; j < n; j++)
+      min = INF;
+      v = -1;
+      for(j=0;j<n;j++)
       {
          if(flag[j] == 0 && dist[j] < min)
          {
@@ -46,27 +45,29 @@ int main()
          }
       }
 
-      if(v == -1) break;  // remaining nodes unreachable
-      flag[v] = 1;
-      for(j = 0; j < n; j++)
-      {
-         if(flag[j] == 0)
-         {
-            if(dist[v] + adj[v][j] < dist[j])
-            {
-                dist[j] = dist[v] + adj[v][j];
-                last[j] = v;
-            }
+      if(v == -1)
+         break;
+
+     flag[v] = 1;
+     for(j=0;j<n;j++)
+     {
+        if(flag[j] == 0)
+        {
+           if(dist[v] + cost[v][j] < dist[j])
+           {
+              dist[j] = dist[v] + cost[v][j];
+              last[j] = v;
+           }
         }
      }
    }
 
-   printf("Routing table\n");
-
-   printf("Node\tDist\tNext\n");
+   printf("======Routing Table======\n");
+   printf("Node\tDist\tPrevious\n");
    for(i=0;i<n;i++)
    {
       printf("%d\t%d\t%d\n",i,dist[i],last[i]);
    }
+
    return 0;
 }
