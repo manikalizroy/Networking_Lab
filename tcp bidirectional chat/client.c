@@ -5,38 +5,39 @@
 
 int main()
 {
-   int sock;
-   struct sockaddr_in serv_addr;
-   char msg[1000], buffer[1000];
+    int sock;
+    struct sockaddr_in serv_addr;
+    char msg[1024], buffer[1024];
 
-   sock = socket(AF_INET, SOCK_STREAM,0);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(9090);
+    inet_pton(AF_INET,"127.0.0.1", &serv_addr.sin_addr);
 
-   serv_addr.sin_family = AF_INET;
-   serv_addr.sin_port = htons(8181);
-   inet_pton(AF_INET,"127.0.0.1",&serv_addr.sin_addr);
+    connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
 
-   connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    printf("Connection established..\n");
+    while(1)
+    {
+        //msg to server
+        printf("You: ");
+        memset(msg, sizeof(msg), 0);
+        fgets(msg, sizeof(msg), stdin);
+        send(sock, msg, strlen(msg),0);
 
-   printf("Connection established...\n");
+        if(strncmp(msg, "exit", 4)==0)
+           break;
 
-   while(1)
-   {
-      printf("Client: ");
-      fgets(buffer, sizeof(buffer), stdin);
-      send(sock, buffer, strlen(buffer), 0);
+        //msg from server
+        memset(buffer, sizeof(buffer), 0);
+        read(sock, buffer, sizeof(buffer));
 
-      if(strncmp(buffer, "exit", 4)==0)
-        break;
+        if(strncmp(buffer, "exit", 4)==0)
+           break;
 
-      memset(msg, 0, sizeof(msg));
-      read(sock, msg, sizeof(msg));
-
-      if (strncmp(msg, "exit", 4) == 0)
-            break;
-
-      printf("Server: %s", msg);
-   }
-   printf("Chat ended.Client Exiting..\n");
-   close(sock);
-   return 0;
+        printf("Server: %s", buffer);
+    }
+    printf("Chat ended!!\n");
+    close(sock);
+    return 0;
 }
